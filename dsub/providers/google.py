@@ -631,7 +631,8 @@ class _Operations(object):
                  job_name=None,
                  labels=None,
                  task_id=None,
-                 create_time=None):
+                 create_time_gte=None,
+                 create_time_lte=None):
     """Return a filter string for operations.list()."""
 
     ops_filter = []
@@ -654,8 +655,10 @@ class _Operations(object):
       for l in labels:
         ops_filter.append('labels.%s = %s' % (l.name, l.value))
 
-    if create_time:
-      ops_filter.append('createTime >= %s' % create_time)
+    if create_time_gte:
+      ops_filter.append('createTime >= %s' % create_time_gte)
+    if create_time_lte:
+      ops_filter.append('createTime <= %s' % create_time_lte)
 
     return ' AND '.join(ops_filter)
 
@@ -1051,7 +1054,8 @@ class GoogleJobProvider(base.JobProvider):
                        job_name_list=None,
                        task_list=None,
                        labels=None,
-                       create_time=None,
+                       create_time_gte=None,
+                       create_time_lte=None,
                        max_tasks=0):
     """Return a list of operations based on the input criteria.
 
@@ -1068,7 +1072,8 @@ class GoogleJobProvider(base.JobProvider):
       task_list: a list of specific tasks within the specified job(s) to return.
       labels: a list of LabelParam with user-added labels. All labels must
         match the task being fetched.
-      create_time: a UTC value for earliest create time for a task.
+      create_time_gte: a UTC value for earliest create time for a task.
+      create_time_lte: a UTC value for most recent create time for a task.
       max_tasks: the maximum number of job tasks to return or 0 for no limit.
 
     Raises:
@@ -1113,7 +1118,8 @@ class GoogleJobProvider(base.JobProvider):
           job_name=job_name,
           labels=labels,
           task_id=task_id,
-          create_time=create_time)
+          create_time_gte=create_time_gte,
+          create_time_lte=create_time_lte)
 
       ops = _Operations.list(self._service, ops_filter, max_tasks)
 
@@ -1131,7 +1137,8 @@ class GoogleJobProvider(base.JobProvider):
                   job_list,
                   task_list,
                   labels,
-                  create_time=None):
+                  create_time_gte=None,
+                  create_time_lte=None):
     """Kills the operations associated with the specified job or job.task.
 
     Args:
@@ -1151,7 +1158,8 @@ class GoogleJobProvider(base.JobProvider):
         job_list=job_list,
         task_list=task_list,
         labels=labels,
-        create_time=create_time)
+        create_time_gte=create_time_gte,
+        create_time_lte=create_time_lte)
 
     print 'Found %d tasks to delete.' % len(tasks)
 

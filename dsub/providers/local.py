@@ -494,7 +494,8 @@ class LocalJobProvider(base.JobProvider):
                   job_list,
                   task_list,
                   labels,
-                  create_time=None):
+                  create_time_gte=None,
+                  create_time_lte=None):
     # As per the spec, we ignore anything not running.
     tasks = self.lookup_job_tasks(
         status_list=['RUNNING'],
@@ -503,7 +504,8 @@ class LocalJobProvider(base.JobProvider):
         job_name_list=None,
         task_list=task_list,
         labels=labels,
-        create_time=create_time)
+        create_time_gte=create_time_gte,
+        create_time_lte=create_time_lte)
 
     canceled = []
     cancel_errors = []
@@ -579,7 +581,8 @@ class LocalJobProvider(base.JobProvider):
                        job_name_list=None,
                        task_list=None,
                        labels=None,
-                       create_time=None,
+                       create_time_gte=None,
+                       create_time_lte=None,
                        max_tasks=0):
     # 'OR' filtering arguments.
     status_list = None if status_list == ['*'] else status_list
@@ -591,7 +594,8 @@ class LocalJobProvider(base.JobProvider):
     labels = labels if labels else []
 
 
-    create_time_local = self._utc_int_to_local_datetime(create_time)
+    create_time_gte_local = self._utc_int_to_local_datetime(create_time_gte)
+    create_time_lte_local = self._utc_int_to_local_datetime(create_time_lte)
 
     # The local provider is intended for local, single-user development. There
     # is no shared queue (jobs run immediately) and hence it makes no sense
@@ -637,11 +641,14 @@ class LocalJobProvider(base.JobProvider):
               [k in task_labels and task_labels[k] == v for k, v in labels])
           if labels and not labels_match:
             continue
-          # Check that the job is not too old.
-          if create_time_local:
+          # Check that the job is in the requested age range.
+          if create_time_local_gte or create_time_local_lte:
             task_create_time = datetime.strptime(task.get_field('create-time'),
                                                  '%Y-%m-%d %H:%M:%S.%f')
-            if task_create_time < create_time_local:
+            if ((create_time_gte_local and
+                 task_create_time < create_time_gte_local) or
+                (create_time_lte_local and
+                 task_create_time < create_time_lte_local)):
               continue
 
           ret.append(task)

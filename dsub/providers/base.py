@@ -111,7 +111,8 @@ class JobProvider(object):
                   job_list,
                   task_list,
                   labels,
-                  create_time=None):
+                  create_time_gte=None,
+                  create_time_lte=None):
     """Kills the operations associated with the specified job or job.task.
 
     Some providers may provide only a "cancel" operation, which terminates the
@@ -122,7 +123,8 @@ class JobProvider(object):
       job_list: List of job ids to delete.
       task_list: List of task ids to delete.
       labels: List of LabelParam, each must match the job(s) to be cancelled.
-      create_time: a UTC value for earliest create time for a task.
+      create_time_gte: a UTC value for earliest create time for a task.
+      create_time_lte: a UTC value for most recent create time for a task.
 
     Returns:
       (list of tasks canceled,
@@ -140,7 +142,8 @@ class JobProvider(object):
                        job_name_list=None,
                        task_list=None,
                        labels=None,
-                       create_time=None,
+                       create_time_gte=None,
+                       create_time_lte=None,
                        max_tasks=0):
     """Return a list of tasks based on the search criteria.
 
@@ -156,7 +159,8 @@ class JobProvider(object):
       job_name_list: a list of job names to return.
       task_list: a list of specific tasks within the specified job(s) to return.
       labels: a list of LabelParam, each must match the job(s) returned.
-      create_time: a UTC value for earliest create time for a task.
+      create_time_gte: a UTC value for earliest create time for a task.
+      create_time_lte: a UTC value for most recent create time for a task.
       max_tasks: the maximum number of job tasks to return or 0 for no limit.
 
     Returns:

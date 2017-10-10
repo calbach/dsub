@@ -307,7 +307,7 @@ def main():
   args = parse_arguments()
 
   # Compute the age filter (if any)
-  create_time = param_util.age_to_create_time(args.age)
+  create_time_gte = param_util.age_to_create_time(args.age)
 
   # Set up the output formatter
   if args.format == 'json':
@@ -347,7 +347,7 @@ def main():
       job_name_list=args.names,
       task_list=args.tasks,
       label_list=labels,
-      create_time=create_time,
+      create_time_gte=create_time_gte,
       max_tasks=args.limit,
       full_output=args.full,
       poll_interval=poll_interval,
@@ -369,7 +369,8 @@ def dstat_job_producer(provider,
                        job_name_list=None,
                        task_list=None,
                        label_list=None,
-                       create_time=None,
+                       create_time_gte=None,
+                       create_time_lte=None,
                        max_tasks=0,
                        full_output=False,
                        poll_interval=0,
@@ -387,7 +388,8 @@ def dstat_job_producer(provider,
     job_name_list: a list of job-name strings eligible jobs may match.
     task_list: a list of task-id strings eligible tasks may match.
     label_list: list of LabelParam that all tasks must match.
-    create_time: a UTC value for earliest create time for a task.
+    create_time_gte: a UTC value for earliest create time for a task.
+    create_time_lte: a UTC value for most recent create time for a task.
     max_tasks: (int) maximum number of tasks to return per dstat job lookup.
     full_output: (bool) return all dsub fields.
     poll_interval: (int) wait time between poll events, dstat will poll jobs
@@ -412,7 +414,8 @@ def dstat_job_producer(provider,
         job_name_list=job_name_list,
         task_list=task_list,
         labels=label_list,
-        create_time=create_time,
+        create_time_gte=create_time_gte,
+        create_time_lte=create_time_lte,
         max_tasks=max_tasks)
 
     some_job_running = False
